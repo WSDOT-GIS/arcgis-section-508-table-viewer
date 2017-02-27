@@ -1,0 +1,19 @@
+{
+  "name": "arcgis-section-508-table-viewer",
+  "version": "0.0.1",
+  "description": "View data from ArcGIS server service in Section 508 compatible table",
+  "main": "index.js",
+  "scripts": {
+    "prepublish": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "WSDOT",
+  "license": "Unlicense",
+  "private": true,
+  "devDependencies": {
+    "@types/requirejs": "^2.1.28",
+    "requirejs": "^2.3.3",
+    "tslint": "^4.5.0",
+    "typescript": "^2.2.1"
+  }
+}

@@ -2,8 +2,8 @@
 node_modules
 
 # TypeScript compiled output
-script/*.js
-script/*.js.map
+# script/*.js
+# script/*.js.map
 
 
 #################

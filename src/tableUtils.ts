@@ -1,27 +1,17 @@
 import { Error as ErrorResponse, FeatureSet } from "./FeatureTypes";
 
+/**
+ * Queries a Feature Layer for all records (or the max allowed by the server for services with a large amount).
+ * @param layerUrl - Feature Layer URL.
+ */
 export function getData(layerUrl: URL): Promise<FeatureSet> {
-    const params = {
-        f: "json",
-        outFields: "*",
-        returnGeometry: "false",
-        where: encodeURIComponent("1=1"),
-    };
-    let search: string[] = [];
-    // tslint:disable-next-line:forin
-    for (let key in params) {
-        search.push(`${key}=${params[key]}`);
-    }
-    let queryString = search.join("&");
-    let url = new URL(`query?${queryString}`, layerUrl.toString());
+    let sp = new URLSearchParams();
+    sp.append("where", "1=1");
+    sp.append("outFields", "*");
+    sp.append("returnGeometry", false.toString());
+    sp.append("f", "json");
 
-    // let sp = new URLSearchParams();
-    // sp.append("where", "1=1");
-    // sp.append("outFields", "*");
-    // sp.append("returnGeometry", false.toString());
-    // sp.append("f", "json");
-
-    // let url = new URL(`query?${sp.toString()}`, layerUrl.toString());
+    let url = new URL(`${layerUrl}/query?${sp.toString()}`);
 
     return fetch(url.toString()).then((response) => {
         return response.json() as Promise<FeatureSet | ErrorResponse>;
@@ -36,6 +26,10 @@ export function getData(layerUrl: URL): Promise<FeatureSet> {
     });
 }
 
+/**
+ * Creates an HTML table showing the contents of a feature set.
+ * @param featureSet - A feature set.
+ */
 export function createTableFromData(featureSet: FeatureSet) {
     let frag = document.createDocumentFragment();
     let table = document.createElement("table");
@@ -54,13 +48,25 @@ export function createTableFromData(featureSet: FeatureSet) {
         row.appendChild(th);
     }
 
+    const dateRe = /Date$/ig;
+
     for (let feature of featureSet.features) {
         row = document.createElement("tr");
 
         for (let field of featureSet.fields) {
             let cell = document.createElement("td");
             let value = feature.attributes[field.name];
-            cell.textContent = `${value}`;
+            if (dateRe.test(field.type) && typeof value === "number") {
+                // ArcGIS services return dates as integers.
+                // Add a <time> element with the date.
+                let theDate = new Date(value);
+                let time = document.createElement("time");
+                time.dateTime = theDate.toISOString();
+                time.textContent = `${theDate}`;
+                cell.appendChild(time);
+            } else {
+                cell.textContent = `${value}`;
+            }
             cell.classList.add(field.type);
             row.appendChild(cell);
         }
@@ -71,6 +77,10 @@ export function createTableFromData(featureSet: FeatureSet) {
     return frag;
 }
 
+/**
+ * Queries a feature layer and returns the results as an HTML table.
+ * @param layerUrl URL to a feature layer.
+ */
 export default function (layerUrl: URL) {
     let dataPromise = getData(layerUrl);
     return dataPromise.then((featureSet) => {

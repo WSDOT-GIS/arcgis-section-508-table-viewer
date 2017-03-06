@@ -35,19 +35,60 @@ function createForm() {
 let pageUrl = new URL(location.href);
 
 // searchParams property defined incorrectly as searchparams.
+// This issue is scheduled to be fixed at TypeScript 2.3,
+// at which time this workaround will no longer be necessary.
+// let url = pageUrl.searchParams.get("url");
 let url = ((pageUrl as any).searchParams as URLSearchParams).get("url");
+
+interface ILayerData {
+    error?: object;
+    name: string;
+    [proname: string]: any | null;
+}
+
+async function getServiceInfo(serviceUrl: string) {
+    let response = await fetch(`${serviceUrl}?f=json`);
+    let json = await response.json() as ILayerData;
+    if (json.error) {
+        throw json.error;
+    }
+    return json;
+}
+
+async function addTable(serviceUrl: string) {
+    try {
+        let table = await getTable(new URL(serviceUrl));
+        document.body.appendChild(table);
+        return table;
+    } catch (error) {
+        let errorMsg = document.createElement("p");
+        errorMsg.textContent = `Error loading data from ${serviceUrl}`;
+        document.body.appendChild(errorMsg);
+    }
+}
 
 // If the url is provided in the search, load the data from the specified service.
 // Otherwise display a form the user can use to specify a service URL.
 if (url) {
-    let promise = getTable(new URL(url));
-    promise.then((frag) => {
-        document.body.appendChild(frag);
-    });
-    promise.catch((error) => {
-        let errorMsg = document.createElement("p");
-        errorMsg.textContent = `Error loading data from ${url}`;
-        document.body.appendChild(errorMsg);
+    let tablePromise = addTable(url);
+    let layerInfoPromise = getServiceInfo(url);
+    let allPromise = Promise.all([tablePromise, layerInfoPromise]);
+    allPromise.then((results) => {
+        let table = results[0];
+        let data = results[1];
+        // Add title to page.
+        if (data.name) {
+            document.title = data.name;
+            let header = document.createElement("h1");
+            header.textContent = data.name;
+            document.body.insertBefore(header, document.body.firstChild);
+
+            if (table) {
+                let caption = document.createElement("caption");
+                caption.textContent = data.name;
+                table.appendChild(caption);
+            }
+        }
     });
 } else {
     let form = createForm();

@@ -4,7 +4,7 @@ import { Error as ErrorResponse, FeatureSet } from "./FeatureTypes";
  * Queries a Feature Layer for all records (or the max allowed by the server for services with a large amount).
  * @param layerUrl - Feature Layer URL.
  */
-export function getData(layerUrl: URL): Promise<FeatureSet> {
+export async function getData(layerUrl: URL): Promise<FeatureSet> {
     let sp = new URLSearchParams();
     sp.append("where", "1=1");
     sp.append("outFields", "*");
@@ -12,18 +12,13 @@ export function getData(layerUrl: URL): Promise<FeatureSet> {
     sp.append("f", "json");
 
     let url = new URL(`${layerUrl}/query?${sp.toString()}`);
-
-    return fetch(url.toString()).then((response) => {
-        return response.json() as Promise<FeatureSet | ErrorResponse>;
-    }).then((jsonResponse) => {
-        let err = jsonResponse as ErrorResponse;
-        if (err.error) {
-            throw err.error;
-        }
-        return jsonResponse as FeatureSet;
-    }, (reason) => {
-        throw reason;
-    });
+    let response = await fetch(url.toString());
+    let json = await response.json() as FeatureSet | ErrorResponse;
+    let err = json as ErrorResponse;
+    if (err.error) {
+        throw err.error;
+    }
+    return json as FeatureSet;
 }
 
 /**
@@ -31,9 +26,7 @@ export function getData(layerUrl: URL): Promise<FeatureSet> {
  * @param featureSet - A feature set.
  */
 export function createTableFromData(featureSet: FeatureSet) {
-    let frag = document.createDocumentFragment();
     let table = document.createElement("table");
-    frag.appendChild(table);
 
     let tbody = document.createElement("tbody");
     table.appendChild(tbody);
@@ -74,16 +67,14 @@ export function createTableFromData(featureSet: FeatureSet) {
         tbody.appendChild(row);
     }
 
-    return frag;
+    return table;
 }
 
 /**
  * Queries a feature layer and returns the results as an HTML table.
  * @param layerUrl URL to a feature layer.
  */
-export default function (layerUrl: URL) {
-    let dataPromise = getData(layerUrl);
-    return dataPromise.then((featureSet) => {
-        return createTableFromData(featureSet);
-    });
+export default async function (layerUrl: URL) {
+    let featureSet = await getData(layerUrl);
+    return createTableFromData(featureSet);
 }

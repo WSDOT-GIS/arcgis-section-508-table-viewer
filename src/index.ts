@@ -46,6 +46,10 @@ interface ILayerData {
     [proname: string]: any | null;
 }
 
+/**
+ * Gets information about a map service.
+ * @param serviceUrl URL to the map service layer.
+ */
 async function getServiceInfo(serviceUrl: string) {
     let response = await fetch(`${serviceUrl}?f=json`);
     let json = await response.json() as ILayerData;

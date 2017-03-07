@@ -7,6 +7,7 @@ import { Error as ErrorResponse, FeatureSet } from "./FeatureTypes";
 export async function getData(layerUrl: URL): Promise<FeatureSet> {
     let sp = new URLSearchParams();
     sp.append("where", "1=1");
+    // TODO: Get fields form service info, pass in that array minus OBJECTID field.
     sp.append("outFields", "*");
     sp.append("returnGeometry", false.toString());
     sp.append("f", "json");
@@ -35,7 +36,13 @@ export function createTableFromData(featureSet: FeatureSet) {
     let row = document.createElement("tr");
     thead.appendChild(row);
 
+    // Omit the Object ID field.
+    const oidFieldNameRe = /^O(bject)ID$/i;
+
     for (let field of featureSet.fields) {
+        if (oidFieldNameRe.test(field.name)) {
+            continue;
+        }
         let th = document.createElement("th");
         th.textContent = field.alias || field.name;
         row.appendChild(th);
@@ -47,6 +54,9 @@ export function createTableFromData(featureSet: FeatureSet) {
         row = document.createElement("tr");
 
         for (let field of featureSet.fields) {
+            if (oidFieldNameRe.test(field.name)) {
+                continue;
+            }
             let cell = document.createElement("td");
             let value = feature.attributes[field.name];
             if (dateRe.test(field.type) && typeof value === "number") {
@@ -54,8 +64,8 @@ export function createTableFromData(featureSet: FeatureSet) {
                 // Add a <time> element with the date.
                 let theDate = new Date(value);
                 let time = document.createElement("time");
-                time.dateTime = theDate.toISOString();
-                time.textContent = `${theDate}`;
+                time.setAttribute("dateTime", theDate.toISOString());
+                time.textContent = `${theDate.toLocaleString()}`;
                 cell.appendChild(time);
             } else {
                 cell.textContent = `${value}`;

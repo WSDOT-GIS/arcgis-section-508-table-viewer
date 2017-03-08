@@ -45,6 +45,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
+     * Determines if a date/time is midnight UTC.
+     * If so it was probably intended to represent only a date.
+     * @param dateTime a Date
+     * @returns Returns true if the UTC time is midnight, false otherwise.
+     */
+    function isMidnightUtc(dateTime) {
+        return dateTime.getUTCHours() === 0 &&
+            dateTime.getUTCMinutes() === 0 &&
+            dateTime.getUTCSeconds() === 0 &&
+            dateTime.getUTCMilliseconds() === 0;
+    }
+    /**
      * Queries a Feature Layer for all records (or the max allowed by the server for services with a large amount).
      * @param layerUrl - Feature Layer URL.
      */
@@ -116,8 +128,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                     // Add a <time> element with the date.
                     var theDate = new Date(value);
                     var time = document.createElement("time");
-                    time.setAttribute("dateTime", theDate.toISOString());
-                    time.textContent = "" + theDate.toLocaleString();
+                    if (isMidnightUtc(theDate)) {
+                        time.setAttribute("dateTime", theDate.toISOString());
+                        time.textContent = "" + theDate.toLocaleDateString();
+                    }
+                    else {
+                        time.setAttribute("dateTime", theDate.toISOString());
+                        time.textContent = "" + theDate.toLocaleString();
+                    }
                     cell.appendChild(time);
                 }
                 else {

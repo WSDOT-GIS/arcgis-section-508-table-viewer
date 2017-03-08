@@ -1,10 +1,11 @@
 body {
-    font-family: 'Lato', sans-serif;
+    font-family: 'Lato', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     color: #1E252B;
 }
 
 h1 {
     text-align: center;
+    color: #00795F;
 }
 
 table {
@@ -29,7 +30,7 @@ tr:nth-child(even) {
 }
 
 .esriFieldTypeSmallInteger, .esriFieldTypeInteger, .esriFieldTypeDouble {
-    font-family: "Courier New", Courier, monospace;
+    font-family: Inconsolata, "Courier New", Courier, monospace;
     color: #004F50;
     text-align: right;
 }

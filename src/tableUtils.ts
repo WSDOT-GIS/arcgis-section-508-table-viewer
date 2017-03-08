@@ -4,26 +4,22 @@ import { Error as ErrorResponse, FeatureSet } from "./FeatureTypes";
  * Queries a Feature Layer for all records (or the max allowed by the server for services with a large amount).
  * @param layerUrl - Feature Layer URL.
  */
-export function getData(layerUrl: URL): Promise<FeatureSet> {
+export async function getData(layerUrl: URL): Promise<FeatureSet> {
     let sp = new URLSearchParams();
     sp.append("where", "1=1");
+    // TODO: Get fields form service info, pass in that array minus OBJECTID field.
     sp.append("outFields", "*");
     sp.append("returnGeometry", false.toString());
     sp.append("f", "json");
 
     let url = new URL(`${layerUrl}/query?${sp.toString()}`);
-
-    return fetch(url.toString()).then((response) => {
-        return response.json() as Promise<FeatureSet | ErrorResponse>;
-    }).then((jsonResponse) => {
-        let err = jsonResponse as ErrorResponse;
-        if (err.error) {
-            throw err.error;
-        }
-        return jsonResponse as FeatureSet;
-    }, (reason) => {
-        throw reason;
-    });
+    let response = await fetch(url.toString());
+    let json = await response.json() as FeatureSet | ErrorResponse;
+    let err = json as ErrorResponse;
+    if (err.error) {
+        throw err.error;
+    }
+    return json as FeatureSet;
 }
 
 /**
@@ -31,9 +27,7 @@ export function getData(layerUrl: URL): Promise<FeatureSet> {
  * @param featureSet - A feature set.
  */
 export function createTableFromData(featureSet: FeatureSet) {
-    let frag = document.createDocumentFragment();
     let table = document.createElement("table");
-    frag.appendChild(table);
 
     let tbody = document.createElement("tbody");
     table.appendChild(tbody);
@@ -42,7 +36,13 @@ export function createTableFromData(featureSet: FeatureSet) {
     let row = document.createElement("tr");
     thead.appendChild(row);
 
+    // Omit the Object ID field.
+    const oidFieldNameRe = /^O(bject)ID$/i;
+
     for (let field of featureSet.fields) {
+        if (oidFieldNameRe.test(field.name)) {
+            continue;
+        }
         let th = document.createElement("th");
         th.textContent = field.alias || field.name;
         row.appendChild(th);
@@ -54,6 +54,9 @@ export function createTableFromData(featureSet: FeatureSet) {
         row = document.createElement("tr");
 
         for (let field of featureSet.fields) {
+            if (oidFieldNameRe.test(field.name)) {
+                continue;
+            }
             let cell = document.createElement("td");
             let value = feature.attributes[field.name];
             if (dateRe.test(field.type) && typeof value === "number") {
@@ -61,8 +64,8 @@ export function createTableFromData(featureSet: FeatureSet) {
                 // Add a <time> element with the date.
                 let theDate = new Date(value);
                 let time = document.createElement("time");
-                time.dateTime = theDate.toISOString();
-                time.textContent = `${theDate}`;
+                time.setAttribute("dateTime", theDate.toISOString());
+                time.textContent = `${theDate.toLocaleString()}`;
                 cell.appendChild(time);
             } else {
                 cell.textContent = `${value}`;
@@ -74,16 +77,14 @@ export function createTableFromData(featureSet: FeatureSet) {
         tbody.appendChild(row);
     }
 
-    return frag;
+    return table;
 }
 
 /**
  * Queries a feature layer and returns the results as an HTML table.
  * @param layerUrl URL to a feature layer.
  */
-export default function (layerUrl: URL) {
-    let dataPromise = getData(layerUrl);
-    return dataPromise.then((featureSet) => {
-        return createTableFromData(featureSet);
-    });
+export default async function (layerUrl: URL) {
+    let featureSet = await getData(layerUrl);
+    return createTableFromData(featureSet);
 }

@@ -4,14 +4,15 @@
   "description": "View data from ArcGIS server service in Section 508 compatible table",
   "main": "index.js",
   "scripts": {
-    "prepublish": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:less": "lessc index.less index.css",
+    "prepublish": "npm run build:less && tsc"
   },
   "author": "WSDOT",
   "license": "Unlicense",
   "private": true,
   "devDependencies": {
     "@types/requirejs": "^2.1.28",
+    "less": "^2.7.2",
     "requirejs": "^2.3.3",
     "tslint": "^4.5.0",
     "typescript": "^2.2.1"

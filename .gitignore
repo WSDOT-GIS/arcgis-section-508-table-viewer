@@ -1,10 +1,10 @@
-.vscode
+iis-e-settings.json
 node_modules
 
-# TypeScript compiled output
+# compiled output
 script/*.js
 script/*.js.map
-
+*.css
 
 #################
 ## Eclipse

@@ -58,7 +58,7 @@ export function createTableFromData(featureSet: IFeatureSet) {
             let value = feature.attributes[field.name];
             if (value === null) {
                 cell.classList.add("null");
-                cell.textContent = "∅";
+                cell.textContent = "(null)"; //"∅"; reader reads as "zero". can't use
             } else if (dateRe.test(field.type) && typeof value === "number") {
                 // ArcGIS services return dates as integers.
                 // Add a <time> element with the date.

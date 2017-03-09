@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "build:less": "lessc index.less index.css",
-    "prepublish": "npm run build:less && tsc"
+    "build": "npm run build:less && tsc",
+    "copystuff": "copy \"node_modules\\requirejs\\require.js\" \"script\\\"",
+    "prepare": "npm run-script build && npm run-script copystuff"
   },
   "author": "WSDOT",
   "license": "Unlicense",

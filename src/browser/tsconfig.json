@@ -1,14 +1,13 @@
 {
     "include": [
-        "src/index.ts"
+        "index.ts"
     ],
     "compilerOptions": {
         "module": "umd",
         "target": "es5",
         "noImplicitAny": true,
         "strictNullChecks": true,
-        "rootDir": "src",
-        "outDir": "script",
+        "outDir": "../../script/browser",
         "lib": [
             "dom",
             "es2015",

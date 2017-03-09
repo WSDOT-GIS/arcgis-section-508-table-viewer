@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build:less": "lessc index.less index.css",
-    "build": "npm run build:less && tsc",
+    "build:ts": "tsc -p src/browser/tsconfig.json && tsc -p src/worker/tsconfig.json",
+    "build": "npm run build:less && npm run build:ts",
     "copystuff": "copy \"node_modules\\requirejs\\require.js\" \"script\\\"",
     "prepare": "npm run-script build && npm run-script copystuff"
   },

@@ -1,5 +1,5 @@
 import { IFeatureSet } from "arcgis-rest-api-typescript/arcgis-rest";
-import { getData } from "./serviceUtils";
+import { ILayer } from "arcgis-rest-api-typescript/layer";
 
 /**
  * Determines if a date/time is midnight UTC.
@@ -15,18 +15,39 @@ function isMidnightUtc(dateTime: Date) {
 }
 
 /**
- * Creates an HTML table showing the contents of a feature set.
- * @param featureSet - A feature set.
+ * Creates a table with an empty TBODY.
+ * @param layer service layer definition
  */
-export function createTableFromData(featureSet: IFeatureSet) {
+export function createTable(layer: ILayer) {
     let table = document.createElement("table");
 
-    let tbody = document.createElement("tbody");
-    table.appendChild(tbody);
     let thead = document.createElement("thead");
-    table.appendChild(thead);
     let row = document.createElement("tr");
+    for (let field of layer.fields) {
+        let th = document.createElement("th");
+        th.textContent = field.alias || field.name;
+        row.appendChild(th);
+    }
     thead.appendChild(row);
+
+    table.appendChild(thead);
+    // Add empty table body.
+    table.appendChild(document.createElement("tbody"));
+
+
+    return table;
+}
+
+/**
+ * Creates an document fragment containing table rows of data from the feature set.
+ * @param featureSet - A feature set.
+ * @returns A document fragment to be inserted into the table body.
+ */
+export function createRowsFromData(featureSet: IFeatureSet) {
+    let docFrag = document.createDocumentFragment();
+
+    let row = document.createElement("tr");
+    docFrag.appendChild(row);
 
     // Omit the Object ID field.
     const oidFieldNameRe = /^O(bject)ID$/i;
@@ -90,18 +111,7 @@ export function createTableFromData(featureSet: IFeatureSet) {
             cell.classList.add(field.type);
             row.appendChild(cell);
         }
-
-        tbody.appendChild(row);
     }
 
-    return table;
-}
-
-/**
- * Queries a feature layer and returns the results as an HTML table.
- * @param layerUrl URL to a feature layer.
- */
-export default async function (layerUrl: string) {
-    let featureSet = await getData(layerUrl);
-    return createTableFromData(featureSet);
+    return docFrag;
 }

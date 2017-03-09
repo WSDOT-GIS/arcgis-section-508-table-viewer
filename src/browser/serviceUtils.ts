@@ -8,7 +8,7 @@ import { ILayer } from "arcgis-rest-api-typescript/layer";
  */
 export interface IError {
     error: {
-        [name: string]: any,
+        [name: string]: any
     };
 }
 

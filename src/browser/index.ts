@@ -1,9 +1,9 @@
 requirejs.config({
-    baseUrl: "script",
+    baseUrl: "script"
 });
 
 import { getServiceInfo } from "./serviceUtils";
-import { default as getTable } from "./tableUtils";
+import { createTable, createRowsFromData } from "./tableUtils";
 
 /**
  * Creates a form that the user can enter a feature layer URL into.
@@ -56,10 +56,21 @@ async function addTable(serviceUrl: string) {
 // If the url is provided in the search, load the data from the specified service.
 // Otherwise display a form the user can use to specify a service URL.
 if (url) {
+    let worker = new Worker("script/worker/arcgisWorker.js");
+    worker.addEventListener("message", (ev) => {
+        console.log("worker message received", ev.data);
+    });
+    worker.postMessage(url);
+
+
+    let progress = document.createElement("progress");
+    progress.textContent = "Loading data...";
+    document.body.appendChild(progress);
     let tablePromise = addTable(url);
     let layerInfoPromise = getServiceInfo(url);
     let allPromise = Promise.all([tablePromise, layerInfoPromise]);
     allPromise.then((results) => {
+        document.body.removeChild(progress);
         let table = results[0];
         let data = results[1];
         // Add title to page.

@@ -2,8 +2,8 @@ iis-e-settings.json
 node_modules
 
 # compiled output
-script/*.js
-script/*.js.map
+script/**/*.js
+script/**/*.js.map
 *.css
 
 #################

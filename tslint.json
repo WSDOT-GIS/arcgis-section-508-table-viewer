@@ -6,6 +6,7 @@
                 "singleline": "never",
                 "multiline": "never"
             }
-        ]
+        ],
+        "object-literal-sort-keys": false
     }
 }

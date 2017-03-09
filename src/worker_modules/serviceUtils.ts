@@ -29,21 +29,31 @@ export async function getServiceInfo(serviceUrl: string) {
 /**
  * Queries a Feature Layer for all records (or the max allowed by the server for services with a large amount).
  * @param layerUrl - Feature Layer URL.
+ * @param [fieldNames] - Used to explicitly specify what fields will be included in output.
+ * If omitted, all fields ("*") will be returned.
  */
-export async function getData(layerUrl: string) {
-    // Get the info about the layer.
-    let serviceInfo = await getServiceInfo(layerUrl);
+export async function getData(layerUrl: string, fieldNames?: string[]) {
     // Get the names of the fields, excluding the OID field.
-    let fieldNames = serviceInfo.fields.filter((field) => field.type !== "esriFieldTypeOID").map((field) => field.name);
+    // tslint:disable-next-line:max-line-length
+    // let fieldNames = serviceInfo.fields.filter((field) => field.type !== "esriFieldTypeOID").map((field) => field.name);
 
-    let sp = new URLSearchParams();
-    sp.append("where", "1=1");
-    sp.append("outFields", fieldNames.join(","));
-    sp.append("returnGeometry", false.toString());
-    sp.append("f", "json");
+    let sp = {
+        f: "json",
+        outFields: fieldNames ? fieldNames.join(",") : "*",
+        returnGeometry: false,
+        where: "1=1"
+    };
 
-    let url = new URL(`${layerUrl}/query?${sp.toString()}`);
-    let response = await fetch(url.toString());
+    let searchParts = new Array<string>(4);
+    for (let key in sp) {
+        if (!(key in sp)) {
+            continue;
+        }
+        searchParts.push(`${key}=${encodeURIComponent(sp[key])}`);
+    }
+
+    let url = `${layerUrl}/query?${searchParts.join("&")}`;
+    let response = await fetch(url);
     let json = await response.json() as IFeatureSet | IError;
     let err = json as IError;
     if (err.error) {

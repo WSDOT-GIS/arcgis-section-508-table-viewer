@@ -2,7 +2,6 @@ requirejs.config({
     baseUrl: "script"
 });
 
-import { getServiceInfo } from "./serviceUtils";
 import { createTable, createRowsFromData } from "./tableUtils";
 
 /**
@@ -41,52 +40,34 @@ let pageUrl = new URL(location.href);
 // let url = pageUrl.searchParams.get("url");
 let url = ((pageUrl as any).searchParams as URLSearchParams).get("url");
 
-async function addTable(serviceUrl: string) {
-    try {
-        let table = await getTable(serviceUrl);
-        document.body.appendChild(table);
-        return table;
-    } catch (error) {
-        let errorMsg = document.createElement("p");
-        errorMsg.textContent = `Error loading data from ${serviceUrl}`;
-        document.body.appendChild(errorMsg);
-    }
-}
-
 // If the url is provided in the search, load the data from the specified service.
 // Otherwise display a form the user can use to specify a service URL.
 if (url) {
+    // Add progress bar
+    let progress = document.createElement("progress");
+    progress.textContent = "Loading data...";
+
+    // Start worker to load data.
     let worker = new Worker("script/worker/arcgisWorker.js");
     worker.addEventListener("message", (ev) => {
         console.log("worker message received", ev.data);
-    });
-    worker.postMessage(url);
-
-
-    let progress = document.createElement("progress");
-    progress.textContent = "Loading data...";
-    document.body.appendChild(progress);
-    let tablePromise = addTable(url);
-    let layerInfoPromise = getServiceInfo(url);
-    let allPromise = Promise.all([tablePromise, layerInfoPromise]);
-    allPromise.then((results) => {
-        document.body.removeChild(progress);
-        let table = results[0];
-        let data = results[1];
-        // Add title to page.
-        if (data.name) {
-            document.title = data.name;
-            let header = document.createElement("h1");
-            header.textContent = data.name;
-            document.body.insertBefore(header, document.body.firstChild);
-
-            if (table) {
-                let caption = document.createElement("caption");
-                caption.textContent = data.name;
-                table.appendChild(caption);
+        if (ev.data.type === "serviceInfo" && ev.data.svcInfo) {
+            let table = createTable(ev.data.svcInfo);
+        } else if (ev.data.type === "featureSet") {
+            // Add rows to table.
+            let frag = createRowsFromData(ev.data.featureSet);
+            let tbody = document.querySelector("tbody");
+            if (tbody) {
+                tbody.appendChild(frag);
+            } else {
+                console.error("Could not find table body");
             }
         }
     });
+    worker.addEventListener("error", (ev) => {
+        console.error(ev.error);
+    });
+    worker.postMessage(url);
 } else {
     let form = createForm();
     document.body.appendChild(form);

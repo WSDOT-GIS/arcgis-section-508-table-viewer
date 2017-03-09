@@ -1,4 +1,4 @@
-import { IFeatureSet } from "arcgis-rest-api-typescript/arcgis-rest";
+import { IFeatureSet } from "arcgis-rest-api-ts-d";
 import { getData } from "./serviceUtils";
 
 /**
@@ -58,7 +58,7 @@ export function createTableFromData(featureSet: IFeatureSet) {
             let value = feature.attributes[field.name];
             if (value === null) {
                 cell.classList.add("null");
-                cell.textContent = "(null)"; //"∅"; reader reads as "zero". can't use
+                cell.textContent = "(null)"; // "∅"; reader reads as "zero". can't use
             } else if (dateRe.test(field.type) && typeof value === "number") {
                 // ArcGIS services return dates as integers.
                 // Add a <time> element with the date.
@@ -72,7 +72,7 @@ export function createTableFromData(featureSet: IFeatureSet) {
                     time.textContent = `${theDate.toLocaleString()}`;
                 }
                 cell.appendChild(time);
-            } else if (urlRe.test(value)) {
+            } else if (typeof value === "string" && urlRe.test(value)) {
                 let linkUrl = value as string;
                 let a = document.createElement("a");
                 a.href = value;

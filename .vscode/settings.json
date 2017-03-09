@@ -7,5 +7,9 @@
         "**/.svn": true,
         "**/.hg": true,
         "**/.DS_Store": true
-    }
+    },
+    "tslint.enable": true,
+    "tslint.ignoreDefinitionFiles": false,
+    "tslint.run": "onType",
+    "tslint.validateWithDefaultConfig": true
 }

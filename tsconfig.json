@@ -9,10 +9,15 @@
         "strictNullChecks": true,
         "rootDir": "src",
         "outDir": "script",
+        "moduleResolution": "node",
         "lib": [
             "dom",
             "es2015",
             "es2015.promise"
+        ],
+        "typeRoots": [
+            "node_modules/@types",
+            "node_modules/arcgis-rest-api-ts-d"
         ]
     }
 }

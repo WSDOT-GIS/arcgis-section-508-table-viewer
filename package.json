@@ -14,10 +14,10 @@
     "@types/requirejs": "^2.1.28",
     "less": "^2.7.2",
     "requirejs": "^2.3.3",
-    "tslint": "^4.5.0",
+    "tslint": "^4.5.1",
     "typescript": "^2.2.1"
   },
   "dependencies": {
-    "arcgis-rest-api-typescript": "github:wsdot-gis/arcgis-rest-api-typescript#v2.0.1"
+    "arcgis-rest-api-ts-d": "^3.0.2"
   }
 }

@@ -2,6 +2,7 @@ requirejs.config({
     baseUrl: "script",
 });
 
+import { getServiceInfo } from "./serviceUtils";
 import { default as getTable } from "./tableUtils";
 
 /**
@@ -40,28 +41,9 @@ let pageUrl = new URL(location.href);
 // let url = pageUrl.searchParams.get("url");
 let url = ((pageUrl as any).searchParams as URLSearchParams).get("url");
 
-interface ILayerData {
-    error?: object;
-    name: string;
-    [proname: string]: any | null;
-}
-
-/**
- * Gets information about a map service.
- * @param serviceUrl URL to the map service layer.
- */
-async function getServiceInfo(serviceUrl: string) {
-    let response = await fetch(`${serviceUrl}?f=json`);
-    let json = await response.json() as ILayerData;
-    if (json.error) {
-        throw json.error;
-    }
-    return json;
-}
-
 async function addTable(serviceUrl: string) {
     try {
-        let table = await getTable(new URL(serviceUrl));
+        let table = await getTable(serviceUrl);
         document.body.appendChild(table);
         return table;
     } catch (error) {

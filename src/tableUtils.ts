@@ -1,4 +1,5 @@
-import { Error as ErrorResponse, FeatureSet } from "./FeatureTypes";
+import { IFeatureSet } from "arcgis-rest-api-typescript/arcgis-rest";
+import { getData } from "./serviceUtils";
 
 /**
  * Determines if a date/time is midnight UTC.
@@ -14,32 +15,10 @@ function isMidnightUtc(dateTime: Date) {
 }
 
 /**
- * Queries a Feature Layer for all records (or the max allowed by the server for services with a large amount).
- * @param layerUrl - Feature Layer URL.
- */
-export async function getData(layerUrl: URL): Promise<FeatureSet> {
-    let sp = new URLSearchParams();
-    sp.append("where", "1=1");
-    // TODO: Get fields form service info, pass in that array minus OBJECTID field.
-    sp.append("outFields", "*");
-    sp.append("returnGeometry", false.toString());
-    sp.append("f", "json");
-
-    let url = new URL(`${layerUrl}/query?${sp.toString()}`);
-    let response = await fetch(url.toString());
-    let json = await response.json() as FeatureSet | ErrorResponse;
-    let err = json as ErrorResponse;
-    if (err.error) {
-        throw err.error;
-    }
-    return json as FeatureSet;
-}
-
-/**
  * Creates an HTML table showing the contents of a feature set.
  * @param featureSet - A feature set.
  */
-export function createTableFromData(featureSet: FeatureSet) {
+export function createTableFromData(featureSet: IFeatureSet) {
     let table = document.createElement("table");
 
     let tbody = document.createElement("tbody");
@@ -52,6 +31,9 @@ export function createTableFromData(featureSet: FeatureSet) {
     // Omit the Object ID field.
     const oidFieldNameRe = /^O(bject)ID$/i;
 
+    if (!featureSet.fields) {
+        throw TypeError("fields property not defined on feature set object.");
+    }
     for (let field of featureSet.fields) {
         if (oidFieldNameRe.test(field.name)) {
             continue;
@@ -62,6 +44,8 @@ export function createTableFromData(featureSet: FeatureSet) {
     }
 
     const dateRe = /Date$/ig;
+    const urlRe = /^https?:\/\//i;
+    const gMapsRe = /^https?:\/\/www.google.com\/maps\/place\/([^/]+)\//i;
 
     for (let feature of featureSet.features) {
         row = document.createElement("tr");
@@ -72,7 +56,10 @@ export function createTableFromData(featureSet: FeatureSet) {
             }
             let cell = document.createElement("td");
             let value = feature.attributes[field.name];
-            if (dateRe.test(field.type) && typeof value === "number") {
+            if (value === null) {
+                cell.classList.add("null");
+                cell.textContent = "∅";
+            } else if (dateRe.test(field.type) && typeof value === "number") {
                 // ArcGIS services return dates as integers.
                 // Add a <time> element with the date.
                 let theDate = new Date(value);
@@ -85,6 +72,18 @@ export function createTableFromData(featureSet: FeatureSet) {
                     time.textContent = `${theDate.toLocaleString()}`;
                 }
                 cell.appendChild(time);
+            } else if (urlRe.test(value)) {
+                let linkUrl = value as string;
+                let a = document.createElement("a");
+                a.href = value;
+                a.target = "externallink";
+                let gMapsMatch = value.match(gMapsRe);
+                if (gMapsMatch) {
+                    a.textContent = gMapsMatch[1].replace(/\+/g, " ");
+                } else {
+                    a.textContent = "link";
+                }
+                cell.appendChild(a);
             } else {
                 cell.textContent = `${value}`;
             }
@@ -102,7 +101,7 @@ export function createTableFromData(featureSet: FeatureSet) {
  * Queries a feature layer and returns the results as an HTML table.
  * @param layerUrl URL to a feature layer.
  */
-export default async function (layerUrl: URL) {
+export default async function (layerUrl: string) {
     let featureSet = await getData(layerUrl);
     return createTableFromData(featureSet);
 }

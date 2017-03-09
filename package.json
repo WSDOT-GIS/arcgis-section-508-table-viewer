@@ -16,5 +16,8 @@
     "requirejs": "^2.3.3",
     "tslint": "^4.5.0",
     "typescript": "^2.2.1"
+  },
+  "dependencies": {
+    "arcgis-rest-api-typescript": "github:wsdot-gis/arcgis-rest-api-typescript#v2.0.1"
   }
 }

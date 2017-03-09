@@ -39,11 +39,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports"], factory);
+        define(["require", "exports", "./serviceUtils"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    var serviceUtils_1 = require("./serviceUtils");
     /**
      * Determines if a date/time is midnight UTC.
      * If so it was probably intended to represent only a date.
@@ -56,39 +57,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             dateTime.getUTCSeconds() === 0 &&
             dateTime.getUTCMilliseconds() === 0;
     }
-    /**
-     * Queries a Feature Layer for all records (or the max allowed by the server for services with a large amount).
-     * @param layerUrl - Feature Layer URL.
-     */
-    function getData(layerUrl) {
-        return __awaiter(this, void 0, void 0, function () {
-            var sp, url, response, json, err;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        sp = new URLSearchParams();
-                        sp.append("where", "1=1");
-                        // TODO: Get fields form service info, pass in that array minus OBJECTID field.
-                        sp.append("outFields", "*");
-                        sp.append("returnGeometry", false.toString());
-                        sp.append("f", "json");
-                        url = new URL(layerUrl + "/query?" + sp.toString());
-                        return [4 /*yield*/, fetch(url.toString())];
-                    case 1:
-                        response = _a.sent();
-                        return [4 /*yield*/, response.json()];
-                    case 2:
-                        json = _a.sent();
-                        err = json;
-                        if (err.error) {
-                            throw err.error;
-                        }
-                        return [2 /*return*/, json];
-                }
-            });
-        });
-    }
-    exports.getData = getData;
     /**
      * Creates an HTML table showing the contents of a feature set.
      * @param featureSet - A feature set.
@@ -103,6 +71,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         thead.appendChild(row);
         // Omit the Object ID field.
         var oidFieldNameRe = /^O(bject)ID$/i;
+        if (!featureSet.fields) {
+            throw TypeError("fields property not defined on feature set object.");
+        }
         for (var _i = 0, _a = featureSet.fields; _i < _a.length; _i++) {
             var field = _a[_i];
             if (oidFieldNameRe.test(field.name)) {
@@ -113,6 +84,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             row.appendChild(th);
         }
         var dateRe = /Date$/ig;
+        var urlRe = /^https?:\/\//i;
+        var gMapsRe = /^https?:\/\/www.google.com\/maps\/place\/([^/]+)\//i;
         for (var _b = 0, _c = featureSet.features; _b < _c.length; _b++) {
             var feature = _c[_b];
             row = document.createElement("tr");
@@ -123,7 +96,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                 }
                 var cell = document.createElement("td");
                 var value = feature.attributes[field.name];
-                if (dateRe.test(field.type) && typeof value === "number") {
+                if (value === null) {
+                    cell.classList.add("null");
+                    cell.textContent = "∅";
+                }
+                else if (dateRe.test(field.type) && typeof value === "number") {
                     // ArcGIS services return dates as integers.
                     // Add a <time> element with the date.
                     var theDate = new Date(value);
@@ -137,6 +114,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                         time.textContent = "" + theDate.toLocaleString();
                     }
                     cell.appendChild(time);
+                }
+                else if (urlRe.test(value)) {
+                    var linkUrl = value;
+                    var a = document.createElement("a");
+                    a.href = value;
+                    a.target = "externallink";
+                    var gMapsMatch = value.match(gMapsRe);
+                    if (gMapsMatch) {
+                        a.textContent = gMapsMatch[1].replace(/\+/g, " ");
+                    }
+                    else {
+                        a.textContent = "link";
+                    }
+                    cell.appendChild(a);
                 }
                 else {
                     cell.textContent = "" + value;
@@ -158,7 +149,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             var featureSet;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, getData(layerUrl)];
+                    case 0: return [4 /*yield*/, serviceUtils_1.getData(layerUrl)];
                     case 1:
                         featureSet = _a.sent();
                         return [2 /*return*/, createTableFromData(featureSet)];

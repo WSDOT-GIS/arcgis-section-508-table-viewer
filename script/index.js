@@ -39,7 +39,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./tableUtils"], factory);
+        define(["require", "exports", "./serviceUtils", "./tableUtils"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -47,6 +47,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     requirejs.config({
         baseUrl: "script",
     });
+    var serviceUtils_1 = require("./serviceUtils");
     var tableUtils_1 = require("./tableUtils");
     /**
      * Creates a form that the user can enter a feature layer URL into.
@@ -77,29 +78,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     // at which time this workaround will no longer be necessary.
     // let url = pageUrl.searchParams.get("url");
     var url = pageUrl.searchParams.get("url");
-    /**
-     * Gets information about a map service.
-     * @param serviceUrl URL to the map service layer.
-     */
-    function getServiceInfo(serviceUrl) {
-        return __awaiter(this, void 0, void 0, function () {
-            var response, json;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, fetch(serviceUrl + "?f=json")];
-                    case 1:
-                        response = _a.sent();
-                        return [4 /*yield*/, response.json()];
-                    case 2:
-                        json = _a.sent();
-                        if (json.error) {
-                            throw json.error;
-                        }
-                        return [2 /*return*/, json];
-                }
-            });
-        });
-    }
     function addTable(serviceUrl) {
         return __awaiter(this, void 0, void 0, function () {
             var table, error_1, errorMsg;
@@ -107,7 +85,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, tableUtils_1.default(new URL(serviceUrl))];
+                        return [4 /*yield*/, tableUtils_1.default(serviceUrl)];
                     case 1:
                         table = _a.sent();
                         document.body.appendChild(table);
@@ -127,7 +105,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     // Otherwise display a form the user can use to specify a service URL.
     if (url) {
         var tablePromise = addTable(url);
-        var layerInfoPromise = getServiceInfo(url);
+        var layerInfoPromise = serviceUtils_1.getServiceInfo(url);
         var allPromise = Promise.all([tablePromise, layerInfoPromise]);
         allPromise.then(function (results) {
             var table = results[0];

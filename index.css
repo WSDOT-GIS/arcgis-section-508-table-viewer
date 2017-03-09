@@ -1,3 +1,8 @@
+.null {
+  font-style: italic;
+  border: inset 3px;
+  text-align: center;
+}
 body {
   font-family: 'Lato', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   color: #1E252B;

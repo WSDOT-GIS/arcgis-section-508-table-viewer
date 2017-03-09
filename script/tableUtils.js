@@ -98,7 +98,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                 var value = feature.attributes[field.name];
                 if (value === null) {
                     cell.classList.add("null");
-                    cell.textContent = "∅";
+                    cell.textContent = "(null)"; //"∅"; reader reads as "zero". can't use
                 }
                 else if (dateRe.test(field.type) && typeof value === "number") {
                     // ArcGIS services return dates as integers.

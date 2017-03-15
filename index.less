@@ -1,3 +1,4 @@
+/* Colors from WSDOT Style Guide */
 @wsdotStdPms0433: #1E252B;
 @wsdotStdPms0433_80: lighten(@wsdotStdPms0433, 80%, relative);
 @wsdotStdPms0433_60: lighten(@wsdotStdPms0433, 60%, relative);
@@ -69,4 +70,14 @@ tr:nth-child(even) {
     font-family: Inconsolata, "Courier New", Courier, monospace;
     color: @wsdotPrimary;
     text-align: right;
+}
+
+form > {
+    margin: 1em;
+    label, input, button {
+        display: block;
+    }
+    input {
+        width: 100%;
+    }
 }

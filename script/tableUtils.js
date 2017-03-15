@@ -86,6 +86,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         var dateRe = /Date$/ig;
         var urlRe = /^https?:\/\//i;
         var gMapsRe = /^https?:\/\/www.google.com\/maps\/place\/([^/]+)\//i;
+        var frag = document.createDocumentFragment();
         for (var _b = 0, _c = featureSet.features; _b < _c.length; _b++) {
             var feature = _c[_b];
             row = document.createElement("tr");
@@ -98,7 +99,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                 var value = feature.attributes[field.name];
                 if (value === null) {
                     cell.classList.add("null");
-                    cell.textContent = "(null)"; //"∅"; reader reads as "zero". can't use
+                    cell.textContent = "(null)"; // "∅"; reader reads as "zero". can't use
                 }
                 else if (dateRe.test(field.type) && typeof value === "number") {
                     // ArcGIS services return dates as integers.
@@ -115,7 +116,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                     }
                     cell.appendChild(time);
                 }
-                else if (urlRe.test(value)) {
+                else if (typeof value === "string" && urlRe.test(value)) {
                     var linkUrl = value;
                     var a = document.createElement("a");
                     a.href = value;
@@ -135,8 +136,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                 cell.classList.add(field.type);
                 row.appendChild(cell);
             }
-            tbody.appendChild(row);
+            frag.appendChild(row);
         }
+        tbody.appendChild(frag);
         return table;
     }
     exports.createTableFromData = createTableFromData;
@@ -159,3 +161,4 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
     exports.default = default_1;
 });
+//# sourceMappingURL=c:/Users/JacobsJ/Documents/GitHub/arcgis-section-508-table-viewer/script/tableUtils.js.map

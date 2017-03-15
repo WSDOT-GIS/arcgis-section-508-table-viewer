@@ -39,11 +39,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./serviceUtils", "./tableUtils"], factory);
+        define(["require", "exports", "./fixes", "./serviceUtils", "./tableUtils"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    require("./fixes");
     requirejs.config({
         baseUrl: "script",
     });
@@ -73,10 +74,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
     // Get the specified URL from the search string.
     var pageUrl = new URL(location.href);
-    // searchParams property defined incorrectly as searchparams.
-    // This issue is scheduled to be fixed at TypeScript 2.3,
-    // at which time this workaround will no longer be necessary.
-    // let url = pageUrl.searchParams.get("url");
     var url = pageUrl.searchParams.get("url");
     function addTable(serviceUrl) {
         return __awaiter(this, void 0, void 0, function () {
@@ -104,10 +101,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     // If the url is provided in the search, load the data from the specified service.
     // Otherwise display a form the user can use to specify a service URL.
     if (url) {
+        // Create the progress bar.
+        var progress_1 = document.createElement("progress");
+        progress_1.textContent = "Loading table data...";
+        document.body.appendChild(progress_1);
         var tablePromise = addTable(url);
         var layerInfoPromise = serviceUtils_1.getServiceInfo(url);
         var allPromise = Promise.all([tablePromise, layerInfoPromise]);
         allPromise.then(function (results) {
+            document.body.removeChild(progress_1);
             var table = results[0];
             var data = results[1];
             // Add title to page.
@@ -123,9 +125,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                 }
             }
         });
+        allPromise.catch(function (reason) {
+            document.body.removeChild(progress_1);
+            console.error(reason);
+        });
     }
     else {
         var form = createForm();
         document.body.appendChild(form);
     }
 });
+//# sourceMappingURL=c:/Users/JacobsJ/Documents/GitHub/arcgis-section-508-table-viewer/script/index.js.map

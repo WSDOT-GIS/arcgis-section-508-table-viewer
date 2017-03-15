@@ -106,3 +106,4 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
     exports.getData = getData;
 });
+//# sourceMappingURL=c:/Users/JacobsJ/Documents/GitHub/arcgis-section-508-table-viewer/script/serviceUtils.js.map

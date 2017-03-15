@@ -39,12 +39,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./fixes", "./serviceUtils", "./tableUtils"], factory);
+        define(["require", "exports", "./serviceUtils", "./tableUtils"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    require("./fixes");
     requirejs.config({
         baseUrl: "script",
     });
@@ -135,4 +134,4 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         document.body.appendChild(form);
     }
 });
-//# sourceMappingURL=c:/Users/JacobsJ/Documents/GitHub/arcgis-section-508-table-viewer/script/index.js.map
+//# sourceMappingURL=C:/Users/jacobsj/Documents/GitHub/arcgis-section-508-table-viewer/script/index.js.map

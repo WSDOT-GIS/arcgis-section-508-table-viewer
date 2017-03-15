@@ -7,6 +7,8 @@
         "target": "es5",
         "noImplicitAny": true,
         "strictNullChecks": true,
+        "mapRoot": "script",
+        "sourceMap": true,
         "rootDir": "src",
         "outDir": "script",
         "moduleResolution": "node",

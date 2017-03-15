@@ -47,6 +47,8 @@ export function createTableFromData(featureSet: IFeatureSet) {
     const urlRe = /^https?:\/\//i;
     const gMapsRe = /^https?:\/\/www.google.com\/maps\/place\/([^/]+)\//i;
 
+    let frag = document.createDocumentFragment();
+
     for (let feature of featureSet.features) {
         row = document.createElement("tr");
 
@@ -91,8 +93,9 @@ export function createTableFromData(featureSet: IFeatureSet) {
             row.appendChild(cell);
         }
 
-        tbody.appendChild(row);
+        frag.appendChild(row);
     }
+    tbody.appendChild(frag);
 
     return table;
 }

@@ -1,5 +1,3 @@
-import "./fixes";
-
 requirejs.config({
     baseUrl: "script",
 });
@@ -36,7 +34,7 @@ function createForm() {
 
 // Get the specified URL from the search string.
 let pageUrl = new URL(location.href);
-let url = pageUrl.searchParams.get("url");
+let url = (pageUrl as any).searchParams.get("url");
 
 async function addTable(serviceUrl: string) {
     try {

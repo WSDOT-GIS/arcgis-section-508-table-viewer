@@ -1,5 +1,4 @@
-import { IFeatureSet } from "arcgis-rest-api-typescript/arcgis-rest";
-import { ILayer } from "arcgis-rest-api-typescript/layer";
+import { IFeatureSet, ILayer } from "arcgis-rest-api-ts-d";
 
 /**
  * Represents the response that is returned from a GIS

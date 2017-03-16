@@ -1,6 +1,7 @@
 @import (inline,once) "https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css";
 @import (inline,once) "https://fonts.googleapis.com/css?family=Inconsolata|Lato";
 
+/* Colors from WSDOT Style Guide */
 @wsdotStdPms0433: #1E252B;
 @wsdotStdPms0433_80: lighten(@wsdotStdPms0433, 80%, relative);
 @wsdotStdPms0433_60: lighten(@wsdotStdPms0433, 60%, relative);
@@ -72,4 +73,14 @@ tr:nth-child(even) {
     font-family: Inconsolata, "Courier New", Courier, monospace;
     color: @wsdotPrimary;
     text-align: right;
+}
+
+form > {
+    margin: 1em;
+    label, input, button {
+        display: block;
+    }
+    input {
+        width: 100%;
+    }
 }

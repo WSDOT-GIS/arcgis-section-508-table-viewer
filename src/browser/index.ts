@@ -1,8 +1,4 @@
-requirejs.config({
-    baseUrl: "script"
-});
-
-import { createTable, createRowsFromData } from "./tableUtils";
+import { createRowsFromData, createTable } from "./tableUtils";
 
 /**
  * Creates a form that the user can enter a feature layer URL into.
@@ -33,19 +29,14 @@ function createForm() {
 
 // Get the specified URL from the search string.
 let pageUrl = new URL(location.href);
-
-// searchParams property defined incorrectly as searchparams.
-// This issue is scheduled to be fixed at TypeScript 2.3,
-// at which time this workaround will no longer be necessary.
-// let url = pageUrl.searchParams.get("url");
-let url = ((pageUrl as any).searchParams as URLSearchParams).get("url");
+let url = (pageUrl as any).searchParams.get("url");
 
 // If the url is provided in the search, load the data from the specified service.
 // Otherwise display a form the user can use to specify a service URL.
 if (url) {
-    // Add progress bar
     let progress = document.createElement("progress");
-    progress.textContent = "Loading data...";
+    progress.textContent = "Loading table data...";
+    document.body.appendChild(progress);
 
     // Start worker to load data.
     let worker = new Worker("script/worker/arcgisWorker.js");

@@ -1,5 +1,4 @@
-import { IFeatureSet } from "arcgis-rest-api-typescript/arcgis-rest";
-import { ILayer } from "arcgis-rest-api-typescript/layer";
+import { IFeatureSet, ILayer } from "arcgis-rest-api-ts-d";
 
 /**
  * Determines if a date/time is midnight UTC.
@@ -68,6 +67,8 @@ export function createRowsFromData(featureSet: IFeatureSet) {
     const urlRe = /^https?:\/\//i;
     const gMapsRe = /^https?:\/\/www.google.com\/maps\/place\/([^/]+)\//i;
 
+    let frag = document.createDocumentFragment();
+
     for (let feature of featureSet.features) {
         row = document.createElement("tr");
 
@@ -93,7 +94,7 @@ export function createRowsFromData(featureSet: IFeatureSet) {
                     time.textContent = `${theDate.toLocaleString()}`;
                 }
                 cell.appendChild(time);
-            } else if (urlRe.test(value)) {
+            } else if (typeof value === "string" && urlRe.test(value)) {
                 let linkUrl = value as string;
                 let a = document.createElement("a");
                 a.href = value;
@@ -111,6 +112,7 @@ export function createRowsFromData(featureSet: IFeatureSet) {
             cell.classList.add(field.type);
             row.appendChild(cell);
         }
+        frag.appendChild(row);
     }
 
     return docFrag;

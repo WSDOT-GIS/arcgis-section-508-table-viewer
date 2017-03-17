@@ -1,4 +1,4 @@
-import { IFeatureSet, ILayer } from "arcgis-rest-api-ts-d";
+import { IFeatureSet, IField, ILayer } from "arcgis-rest-api-ts-d";
 
 /**
  * Determines if a date/time is midnight UTC.
@@ -17,12 +17,15 @@ function isMidnightUtc(dateTime: Date) {
  * Creates a table with an empty TBODY.
  * @param layer service layer definition
  */
-export function createTable(layer: ILayer) {
+export function createTable(layer: ILayer, fields?: IField[]) {
     let table = document.createElement("table");
+    let caption = document.createElement("caption");
+    caption.textContent = layer.name;
+    table.appendChild(caption);
 
     let thead = document.createElement("thead");
     let row = document.createElement("tr");
-    for (let field of layer.fields) {
+    for (let field of (fields || layer.fields)) {
         let th = document.createElement("th");
         th.textContent = field.alias || field.name;
         row.appendChild(th);
@@ -43,26 +46,6 @@ export function createTable(layer: ILayer) {
  * @returns A document fragment to be inserted into the table body.
  */
 export function createRowsFromData(featureSet: IFeatureSet) {
-    let docFrag = document.createDocumentFragment();
-
-    let row = document.createElement("tr");
-    docFrag.appendChild(row);
-
-    // Omit the Object ID field.
-    const oidFieldNameRe = /^O(bject)ID$/i;
-
-    if (!featureSet.fields) {
-        throw TypeError("fields property not defined on feature set object.");
-    }
-    for (let field of featureSet.fields) {
-        if (oidFieldNameRe.test(field.name)) {
-            continue;
-        }
-        let th = document.createElement("th");
-        th.textContent = field.alias || field.name;
-        row.appendChild(th);
-    }
-
     const dateRe = /Date$/ig;
     const urlRe = /^https?:\/\//i;
     const gMapsRe = /^https?:\/\/www.google.com\/maps\/place\/([^/]+)\//i;
@@ -70,12 +53,9 @@ export function createRowsFromData(featureSet: IFeatureSet) {
     let frag = document.createDocumentFragment();
 
     for (let feature of featureSet.features) {
-        row = document.createElement("tr");
+        let row = document.createElement("tr");
 
-        for (let field of featureSet.fields) {
-            if (oidFieldNameRe.test(field.name)) {
-                continue;
-            }
+        for (let field of featureSet.fields as IField[]) {
             let cell = document.createElement("td");
             let value = feature.attributes[field.name];
             if (value === null) {
@@ -115,5 +95,5 @@ export function createRowsFromData(featureSet: IFeatureSet) {
         frag.appendChild(row);
     }
 
-    return docFrag;
+    return frag;
 }

@@ -1,14 +1,9 @@
 {
+    "extends": "../tsconfig-common.json",
     "files": [
         "arcgisWorker.ts"
     ],
     "compilerOptions": {
-        "module": "umd",
-        "target": "es5",
-        "noImplicitAny": false,
-        "sourceMap": false,
-        "outDir": "../../script/worker",
-        "moduleResolution": "node",
         "lib": [
             "es5",
             "es2015",

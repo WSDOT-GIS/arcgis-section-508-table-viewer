@@ -41,9 +41,9 @@ if (url) {
     // Start worker to load data.
     let worker = new Worker("script/worker/arcgisWorker.js");
     worker.addEventListener("message", (ev) => {
-        console.log("worker message received", ev.data);
-        if (ev.data.type === "serviceInfo" && ev.data.svcInfo) {
-            let table = createTable(ev.data.svcInfo);
+        if (ev.data.type === "serviceInfo" && ev.data.serviceInfo) {
+            let table = createTable(ev.data.serviceInfo, ev.data.fields);
+            document.body.appendChild(table);
         } else if (ev.data.type === "featureSet") {
             // Add rows to table.
             let frag = createRowsFromData(ev.data.featureSet);
@@ -53,6 +53,10 @@ if (url) {
             } else {
                 console.error("Could not find table body");
             }
+        } else if (ev.data.type === "done") {
+            document.body.removeChild(progress);
+        } else {
+            console.warn("Unexpected condition", ev);
         }
     });
     worker.addEventListener("error", (ev) => {

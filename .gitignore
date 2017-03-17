@@ -4,6 +4,7 @@ node_modules
 # compiled output
 script/**/*.js
 script/**/*.js.map
+src/**/*.js
 *.css
 
 #################

@@ -1,0 +1,1 @@
+Copy-Item ".\node_modules\requirejs\require.js" ".\script\" -Force

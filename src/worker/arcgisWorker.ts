@@ -1,5 +1,7 @@
 import { IFeatureSet, ILayer } from "arcgis-rest-api-ts-d";
 
+importScripts("../../node_modules/babel-polyfill/dist/polyfill.js");
+
 /**
  * Represents the response that is returned from a GIS
  * service when there's an error, but the HTTP status
@@ -15,7 +17,7 @@ export interface IError {
  * Gets information about a map service.
  * @param serviceUrl URL to the map service layer.
  */
-export async function getServiceInfo(serviceUrl: string) {
+async function getServiceInfo(serviceUrl: string) {
     let response = await fetch(`${serviceUrl}?f=json`);
     let json = await response.json() as ILayer | IError;
     let errorJson = json as IError;
@@ -31,12 +33,12 @@ export async function getServiceInfo(serviceUrl: string) {
  * @param [fieldNames] - Used to explicitly specify what fields will be included in output.
  * If omitted, all fields ("*") will be returned.
  */
-export async function getData(layerUrl: string, fieldNames?: string[]) {
+async function getData(layerUrl: string, fieldNames?: string[]) {
     // Get the names of the fields, excluding the OID field.
     // tslint:disable-next-line:max-line-length
     // let fieldNames = serviceInfo.fields.filter((field) => field.type !== "esriFieldTypeOID").map((field) => field.name);
 
-    let sp = {
+    let sp: any = {
         f: "json",
         outFields: fieldNames ? fieldNames.join(",") : "*",
         returnGeometry: false,
@@ -67,32 +69,28 @@ addEventListener("message", async (msgEvt) => {
         let url = msgEvt.data;
         let svcPromise = getServiceInfo(url);
         let serviceInfo = await svcPromise;
-        postMessage({
-            data: {
-                serviceInfo,
-                type: "serviceInfo"
-            }
-        });
         let fields = serviceInfo.fields.filter(
-            (field) => field.type !== "esriFieldTypeOID").map(
-                (field) => field.name);
-        let dataPromise = getData(url, fields);
+            (field) => field.type !== "esriFieldTypeOID" && field.type !== "esriFieldTypeGeometry");
+        let fieldNames = fields.map((field) => field.name);
+        postMessage({
+            fields,
+            serviceInfo,
+            type: "serviceInfo"
+        });
+        let dataPromise = getData(url, fieldNames);
         dataPromise.then((featureSet) => {
             postMessage({
-                data: {
-                    type: "featureSet",
-                    featureSet
-                }
+                type: "featureSet",
+                featureSet
             });
         });
 
         let allPromise = Promise.all([svcPromise, dataPromise]);
         allPromise.then((results) => {
             postMessage({
-                data: {
-                    serviceInfo: results[0],
-                    featureSet: results[1]
-                }
+                type: "done",
+                serviceInfo: results[0],
+                featureSet: results[1]
             });
             close();
         });

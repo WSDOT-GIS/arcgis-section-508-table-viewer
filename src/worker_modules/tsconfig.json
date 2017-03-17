@@ -1,8 +1,0 @@
-{
-    "extends": "../worker/tsconfig.json",
-    "compilerOptions": {
-        "module": "commonjs",
-        "outDir": "../../script/worker_modules",
-        "allowJs": false
-    }
-}

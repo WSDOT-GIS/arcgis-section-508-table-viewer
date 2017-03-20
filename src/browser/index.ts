@@ -54,6 +54,10 @@ if (match) {
             }
         } else if (ev.data.type === "done") {
             document.body.removeChild(progress);
+            // Check for "errors". Report these to console.
+            if (ev.data.errors) {
+                console.error(ev.data.errors);
+            }
         } else {
             console.warn("Unexpected condition", ev);
         }

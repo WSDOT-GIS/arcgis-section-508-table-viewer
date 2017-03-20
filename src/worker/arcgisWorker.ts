@@ -41,7 +41,7 @@ async function getData(layerUrl: string, fieldNames?: string[]) {
         where: "1=1"
     };
 
-    let searchParts = new Array<string>(4);
+    let searchParts = new Array<string>();
     for (let key in sp) {
         if (!(key in sp)) {
             continue;
@@ -93,6 +93,11 @@ addEventListener("message", async (msgEvt) => {
                 type: "featureSet",
                 featureSet
             });
+        }, (error) => {
+            postMessage({
+                type: "error",
+                error
+            });
         });
 
         // Once all of the HTTP queries to the feature service have
@@ -106,6 +111,12 @@ addEventListener("message", async (msgEvt) => {
                 featureSet: results[1]
             });
             close();
+        });
+        allPromise.catch((errors) => {
+            postMessage({
+                type: "done",
+                errors
+            });
         });
     } else {
         throw new TypeError("Unrecognized input message.");

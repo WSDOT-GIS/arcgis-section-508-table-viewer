@@ -23,7 +23,7 @@
             "isBuildCommand": true,
             "args": [
                 "run",
-                "prepublish"
+                "prepare"
             ]
         }
     ]

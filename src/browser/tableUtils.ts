@@ -1,5 +1,4 @@
-import { IFeatureSet } from "arcgis-rest-api-ts-d";
-import { getData } from "./serviceUtils";
+import { IFeatureSet, IField, ILayer } from "arcgis-rest-api-ts-d";
 
 /**
  * Determines if a date/time is midnight UTC.
@@ -15,34 +14,38 @@ function isMidnightUtc(dateTime: Date) {
 }
 
 /**
- * Creates an HTML table showing the contents of a feature set.
- * @param featureSet - A feature set.
+ * Creates a table with an empty TBODY.
+ * @param layer service layer definition
  */
-export function createTableFromData(featureSet: IFeatureSet) {
+export function createTable(layer: ILayer, fields?: IField[]) {
     let table = document.createElement("table");
+    let caption = document.createElement("caption");
+    caption.textContent = layer.name;
+    table.appendChild(caption);
 
-    let tbody = document.createElement("tbody");
-    table.appendChild(tbody);
     let thead = document.createElement("thead");
-    table.appendChild(thead);
     let row = document.createElement("tr");
-    thead.appendChild(row);
-
-    // Omit the Object ID field.
-    const oidFieldNameRe = /^O(bject)ID$/i;
-
-    if (!featureSet.fields) {
-        throw TypeError("fields property not defined on feature set object.");
-    }
-    for (let field of featureSet.fields) {
-        if (oidFieldNameRe.test(field.name)) {
-            continue;
-        }
+    for (let field of (fields || layer.fields)) {
         let th = document.createElement("th");
         th.textContent = field.alias || field.name;
         row.appendChild(th);
     }
+    thead.appendChild(row);
 
+    table.appendChild(thead);
+    // Add empty table body.
+    table.appendChild(document.createElement("tbody"));
+
+
+    return table;
+}
+
+/**
+ * Creates an document fragment containing table rows of data from the feature set.
+ * @param featureSet - A feature set.
+ * @returns A document fragment to be inserted into the table body.
+ */
+export function createRowsFromData(featureSet: IFeatureSet) {
     const dateRe = /Date$/ig;
     const urlRe = /^https?:\/\//i;
     const gMapsRe = /^https?:\/\/www.google.com\/maps\/place\/([^/]+)\//i;
@@ -50,12 +53,9 @@ export function createTableFromData(featureSet: IFeatureSet) {
     let frag = document.createDocumentFragment();
 
     for (let feature of featureSet.features) {
-        row = document.createElement("tr");
+        let row = document.createElement("tr");
 
-        for (let field of featureSet.fields) {
-            if (oidFieldNameRe.test(field.name)) {
-                continue;
-            }
+        for (let field of featureSet.fields as IField[]) {
             let cell = document.createElement("td");
             let value = feature.attributes[field.name];
             if (value === null) {
@@ -92,19 +92,8 @@ export function createTableFromData(featureSet: IFeatureSet) {
             cell.classList.add(field.type);
             row.appendChild(cell);
         }
-
         frag.appendChild(row);
     }
-    tbody.appendChild(frag);
 
-    return table;
-}
-
-/**
- * Queries a feature layer and returns the results as an HTML table.
- * @param layerUrl URL to a feature layer.
- */
-export default async function (layerUrl: string) {
-    let featureSet = await getData(layerUrl);
-    return createTableFromData(featureSet);
+    return frag;
 }

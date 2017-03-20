@@ -3,9 +3,10 @@
     "rules": {
         "trailing-comma": [
             true, {
-                "singleline": false,
-                "multiline": false
+                "singleline": "never",
+                "multiline": "never"
             }
-        ]
+        ],
+        "object-literal-sort-keys": false
     }
 }

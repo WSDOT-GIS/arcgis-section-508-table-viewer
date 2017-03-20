@@ -25,6 +25,7 @@
   "dependencies": {
     "arcgis-rest-api-ts-d": "^3.0.2",
     "babel-polyfill": "^6.23.0",
-    "requirejs": "^2.3.3"
+    "requirejs": "^2.3.3",
+    "whatwg-fetch": "^2.0.3"
   }
 }

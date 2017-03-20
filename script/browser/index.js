@@ -36,11 +36,11 @@
         return form;
     }
     // Get the specified URL from the search string.
-    var pageUrl = new URL(location.href);
-    var url = pageUrl.searchParams.get("url");
     // If the url is provided in the search, load the data from the specified service.
     // Otherwise display a form the user can use to specify a service URL.
-    if (url) {
+    var match = !!location.search && location.search.match(/url=([^&]+)/);
+    if (match) {
+        var url = decodeURIComponent(match[1]);
         var progress = document.createElement("progress");
         progress.textContent = "Loading table data...";
         document.body.appendChild(progress);
@@ -61,6 +61,10 @@
                 }
             } else if (ev.data.type === "done") {
                 document.body.removeChild(progress);
+                // Check for "errors". Report these to console.
+                if (ev.data.errors) {
+                    console.error(ev.data.errors);
+                }
             } else {
                 console.warn("Unexpected condition", ev);
             }

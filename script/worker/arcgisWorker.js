@@ -42,7 +42,7 @@
         };
     }
 
-    importScripts("../polyfill.min.js");
+    importScripts("../fetch.js", "../polyfill.min.js");
     /**
      * Gets information about a map service.
      * @param serviceUrl URL to the map service layer.
@@ -97,16 +97,13 @@
                 while (1) {
                     switch (_context2.prev = _context2.next) {
                         case 0:
-                            // Get the names of the fields, excluding the OID field.
-                            // tslint:disable-next-line:max-line-length
-                            // let fieldNames = serviceInfo.fields.filter((field) => field.type !== "esriFieldTypeOID").map((field) => field.name);
                             sp = {
                                 f: "json",
                                 outFields: fieldNames ? fieldNames.join(",") : "*",
                                 returnGeometry: false,
                                 where: "1=1"
                             };
-                            searchParts = new Array(4);
+                            searchParts = new Array();
                             _context2.t0 = regeneratorRuntime.keys(sp);
 
                         case 3:
@@ -130,6 +127,7 @@
                             break;
 
                         case 10:
+                            // Query the service to get all data (or the max amount of records allowed by the server).
                             url = layerUrl + "/query?" + searchParts.join("&");
                             _context2.next = 13;
                             return fetch(url);
@@ -141,6 +139,9 @@
 
                         case 16:
                             json = _context2.sent;
+
+                            // Sometimes "successful" HTTP requests from ArcGIS server are still errors.
+                            // Throw an exception if an "error" property is present in the returned JSON.
                             err = json;
 
                             if (!err.error) {
@@ -151,6 +152,7 @@
                             throw err.error;
 
                         case 20:
+                            // Return the FeatureSet if no errors were encountered.
                             featureSet = json;
                             return _context2.abrupt("return", featureSet);
 
@@ -167,6 +169,7 @@
         };
     }();
 
+    // Setup handling messages from the page.
     addEventListener("message", function () {
         var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(msgEvt) {
             var url, svcPromise, serviceInfo, fields, fieldNames, dataPromise, allPromise;
@@ -175,29 +178,39 @@
                     switch (_context3.prev = _context3.next) {
                         case 0:
                             if (!(msgEvt.data && typeof msgEvt.data === "string")) {
-                                _context3.next = 15;
+                                _context3.next = 16;
                                 break;
                             }
 
                             url = msgEvt.data;
+                            // Get info about the map / feature service layer.
+
                             svcPromise = getServiceInfo(url);
                             _context3.next = 5;
                             return svcPromise;
 
                         case 5:
                             serviceInfo = _context3.sent;
+
+                            // Create a list of fields that excludes OID and geometry.
                             fields = serviceInfo.fields.filter(function (field) {
                                 return field.type !== "esriFieldTypeOID" && field.type !== "esriFieldTypeGeometry";
                             });
+                            // Create an array of field names (from the filtered list).
+
                             fieldNames = fields.map(function (field) {
                                 return field.name;
                             });
+                            // Send layer info back to the page so it can create table and column headers
+                            // while awaiting features.
 
                             postMessage({
                                 fields: fields,
                                 serviceInfo: serviceInfo,
                                 type: "serviceInfo"
                             });
+                            // Query the service to get features (up to the max amount set by the service).
+                            // When the query is complete, the features will be sent to the page.
                             dataPromise = getData(url, fieldNames);
 
                             dataPromise.then(function (featureSet) {
@@ -205,7 +218,15 @@
                                     type: "featureSet",
                                     featureSet: featureSet
                                 });
+                            }, function (error) {
+                                postMessage({
+                                    type: "error",
+                                    error: error
+                                });
                             });
+                            // Once all of the HTTP queries to the feature service have
+                            // been completed, the worker is no longer needed and can be
+                            // closed.
                             allPromise = Promise.all([svcPromise, dataPromise]);
 
                             allPromise.then(function (results) {
@@ -216,13 +237,19 @@
                                 });
                                 close();
                             });
-                            _context3.next = 16;
+                            allPromise.catch(function (errors) {
+                                postMessage({
+                                    type: "done",
+                                    errors: errors
+                                });
+                            });
+                            _context3.next = 17;
                             break;
 
-                        case 15:
+                        case 16:
                             throw new TypeError("Unrecognized input message.");
 
-                        case 16:
+                        case 17:
                         case "end":
                             return _context3.stop();
                     }

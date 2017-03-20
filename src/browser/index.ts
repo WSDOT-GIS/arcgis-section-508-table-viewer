@@ -28,12 +28,11 @@ function createForm() {
 }
 
 // Get the specified URL from the search string.
-let pageUrl = new URL(location.href);
-let url = (pageUrl as any).searchParams.get("url");
-
 // If the url is provided in the search, load the data from the specified service.
 // Otherwise display a form the user can use to specify a service URL.
-if (url) {
+let match = !!location.search && location.search.match(/url=([^&]+)/);
+if (match) {
+    let url = decodeURIComponent(match[1]);
     let progress = document.createElement("progress");
     progress.textContent = "Loading table data...";
     document.body.appendChild(progress);
@@ -55,6 +54,10 @@ if (url) {
             }
         } else if (ev.data.type === "done") {
             document.body.removeChild(progress);
+            // Check for "errors". Report these to console.
+            if (ev.data.errors) {
+                console.error(ev.data.errors);
+            }
         } else {
             console.warn("Unexpected condition", ev);
         }

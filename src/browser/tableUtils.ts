@@ -36,7 +36,6 @@ export function createTable(layer: ILayer, fields?: IField[]) {
     // Add empty table body.
     table.appendChild(document.createElement("tbody"));
 
-
     return table;
 }
 
@@ -49,6 +48,10 @@ export function createRowsFromData(featureSet: IFeatureSet) {
     const dateRe = /Date$/ig;
     const urlRe = /^https?:\/\//i;
     const gMapsRe = /^https?:\/\/www.google.com\/maps\/place\/([^/]+)\//i;
+    const phoneRe = /^(?:1[+-]?)?\(?(\d{3})[)-]?(\d{3})-?(\d{4})$/;
+    const phoneFieldRe = /phone/ig;
+    const emailRe = /^[^@]+@[^@]+$/;
+    const emailFieldRe = /e\-?mail/ig;
 
     let frag = document.createDocumentFragment();
 
@@ -85,6 +88,21 @@ export function createRowsFromData(featureSet: IFeatureSet) {
                 } else {
                     a.textContent = "link";
                 }
+                cell.appendChild(a);
+            } else if (phoneFieldRe.test(field.name) && typeof value === "string") {
+                let match = value.match(phoneRe);
+                if (match) {
+                    let a = document.createElement("a");
+                    a.textContent = match[0];
+                    a.href = `tel:1+${match[1]}${match[2]}${match[3]}`;
+                    cell.appendChild(a);
+                } else {
+                    cell.textContent = `${value}`;
+                }
+            } else if (emailFieldRe.test(field.name) && typeof value === "string" && emailRe.test(value)) {
+                let a = document.createElement("a");
+                a.textContent = value;
+                a.href = `mailto:${value}`;
                 cell.appendChild(a);
             } else {
                 cell.textContent = `${value}`;

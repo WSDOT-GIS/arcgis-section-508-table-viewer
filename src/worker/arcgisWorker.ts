@@ -1,6 +1,6 @@
 import { IFeatureSet, ILayer } from "arcgis-rest-api-ts-d";
 
-importScripts("../polyfill.min.js");
+importScripts("../fetch.js", "../polyfill.min.js");
 
 /**
  * Represents the response that is returned from a GIS

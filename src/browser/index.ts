@@ -1,3 +1,4 @@
+import { ILayer } from "arcgis-rest-api-ts-d";
 import { createRowsFromData, createTable } from "./tableUtils";
 
 /**
@@ -42,6 +43,9 @@ if (match) {
     worker.addEventListener("message", (ev) => {
         if (ev.data.type === "serviceInfo" && ev.data.serviceInfo) {
             let table = createTable(ev.data.serviceInfo, ev.data.fields);
+            let h1 = document.createElement("h1");
+            h1.textContent = (ev.data.serviceInfo as ILayer).name;
+            document.body.appendChild(h1);
             document.body.appendChild(table);
         } else if (ev.data.type === "featureSet") {
             // Add rows to table.

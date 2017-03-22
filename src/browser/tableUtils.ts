@@ -41,65 +41,6 @@ export function createTable(layer: ILayer, fields?: IField[]) {
 }
 
 /**
- * Creates a <span> with classes defining a font awesome icon.
- * @param url A URL
- */
-function getFontAwesomeFileIcon(url: string) {
-    const pdfRe = /\.pdf$/i;
-    const excelRe = /\.xlsx?$/i;
-    const archiveRe = /\.((zip)|(7z)|(rar)|(tar)|(gz))/i;
-    const videoRe = /\.((wmv)|(avi)|(mp4)|(m4v)|(mkv))$/i;
-    const imageRe = /\.((jpe?g)|(png)|(bmp)|(tga)|(gif)|(tiff?))$/i;
-    const audioRe = /\.((wav)|(mp3)|(ogg))$/i;
-    const textRe = /\.((te?xt))$/i;
-    const otherRe = /[^.]+\.\w+$/i;
-
-    let [
-        pdf,
-        excel,
-        archive,
-        video,
-        image,
-        audio,
-        text,
-        other] = matchRegExps(url, true,
-            pdfRe,
-            excelRe,
-            archiveRe,
-            videoRe,
-            imageRe,
-            audioRe,
-            textRe,
-            otherRe);
-    let typeName: string | null;
-
-    if (pdf) {
-        typeName = "file-pdf-o";
-    } else if (excel) {
-        typeName = "file-excel-o";
-    } else if (archive) {
-        typeName = "file-archive-o";
-    } else if (video) {
-        typeName = "file-video-o";
-    } else if (image) {
-        typeName = "file-image-o";
-    } else if (audio) {
-        typeName = "file-audio-o";
-    } else if (text) {
-        typeName = "file-text-o";
-    } else if (other) {
-        typeName = "file";
-    } else {
-        typeName = "external-link";
-    }
-
-    let span = document.createElement("span");
-    span.classList.add("fa", `fa-${typeName}`);
-    span.setAttribute("aria-hidden", "true");
-    return span;
-}
-
-/**
  * Creates an document fragment containing table rows of data from the feature set.
  * @param featureSet - A feature set.
  * @returns A document fragment to be inserted into the table body.
@@ -123,7 +64,7 @@ export function createRowsFromData(featureSet: IFeatureSet) {
             let value = feature.attributes[field.name];
             if (value === null) {
                 cell.classList.add("null");
-                cell.title = "null";
+                cell.textContent = "null";
             } else if (dateRe.test(field.type) && typeof value === "number") {
                 // ArcGIS services return dates as integers.
                 // Add a <time> element with the date.
@@ -148,9 +89,9 @@ export function createRowsFromData(featureSet: IFeatureSet) {
                 if (gMapsMatch) {
                     a.textContent = gMapsMatch[1].replace(/\+/g, " ");
                 } else {
-                    let icon = getFontAwesomeFileIcon(linkUrl);
-                    a.title = "link";
-                    a.appendChild(icon);
+                    let linkMatch = linkUrl.match(/\/([^/]+)$/);
+                    let textElement = document.createTextNode(linkMatch ? linkMatch[1] : "link");
+                    a.appendChild(textElement);
                 }
                 cell.appendChild(a);
             } else if (phoneFieldRe.test(field.name) && typeof value === "string") {

@@ -1,16 +1,16 @@
 (function (global, factory) {
     if (typeof define === "function" && define.amd) {
-        define(["exports", "./reUtils"], factory);
+        define(["exports"], factory);
     } else if (typeof exports !== "undefined") {
-        factory(exports, require("./reUtils"));
+        factory(exports);
     } else {
         var mod = {
             exports: {}
         };
-        factory(mod.exports, global.reUtils);
+        factory(mod.exports);
         global.tableUtils = mod.exports;
     }
-})(this, function (exports, _reUtils) {
+})(this, function (exports) {
     "use strict";
 
     Object.defineProperty(exports, "__esModule", {
@@ -18,45 +18,6 @@
     });
     exports.createTable = createTable;
     exports.createRowsFromData = createRowsFromData;
-
-    var _slicedToArray = function () {
-        function sliceIterator(arr, i) {
-            var _arr = [];
-            var _n = true;
-            var _d = false;
-            var _e = undefined;
-
-            try {
-                for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-                    _arr.push(_s.value);
-
-                    if (i && _arr.length === i) break;
-                }
-            } catch (err) {
-                _d = true;
-                _e = err;
-            } finally {
-                try {
-                    if (!_n && _i["return"]) _i["return"]();
-                } finally {
-                    if (_d) throw _e;
-                }
-            }
-
-            return _arr;
-        }
-
-        return function (arr, i) {
-            if (Array.isArray(arr)) {
-                return arr;
-            } else if (Symbol.iterator in Object(arr)) {
-                return sliceIterator(arr, i);
-            } else {
-                throw new TypeError("Invalid attempt to destructure non-iterable instance");
-            }
-        };
-    }();
-
     /**
      * Determines if a date/time is midnight UTC.
      * If so it was probably intended to represent only a date.
@@ -111,56 +72,6 @@
         return table;
     }
     /**
-     * Creates a <span> with classes defining a font awesome icon.
-     * @param url A URL
-     */
-    function getFontAwesomeFileIcon(url) {
-        var pdfRe = /\.pdf$/i;
-        var excelRe = /\.xlsx?$/i;
-        var archiveRe = /\.((zip)|(7z)|(rar)|(tar)|(gz))/i;
-        var videoRe = /\.((wmv)|(avi)|(mp4)|(m4v)|(mkv))$/i;
-        var imageRe = /\.((jpe?g)|(png)|(bmp)|(tga)|(gif)|(tiff?))$/i;
-        var audioRe = /\.((wav)|(mp3)|(ogg))$/i;
-        var textRe = /\.((te?xt))$/i;
-        var otherRe = /[^.]+\.\w+$/i;
-
-        var _matchRegExps = (0, _reUtils.matchRegExps)(url, true, pdfRe, excelRe, archiveRe, videoRe, imageRe, audioRe, textRe, otherRe),
-            _matchRegExps2 = _slicedToArray(_matchRegExps, 8),
-            pdf = _matchRegExps2[0],
-            excel = _matchRegExps2[1],
-            archive = _matchRegExps2[2],
-            video = _matchRegExps2[3],
-            image = _matchRegExps2[4],
-            audio = _matchRegExps2[5],
-            text = _matchRegExps2[6],
-            other = _matchRegExps2[7];
-
-        var typeName = void 0;
-        if (pdf) {
-            typeName = "file-pdf-o";
-        } else if (excel) {
-            typeName = "file-excel-o";
-        } else if (archive) {
-            typeName = "file-archive-o";
-        } else if (video) {
-            typeName = "file-video-o";
-        } else if (image) {
-            typeName = "file-image-o";
-        } else if (audio) {
-            typeName = "file-audio-o";
-        } else if (text) {
-            typeName = "file-text-o";
-        } else if (other) {
-            typeName = "file";
-        } else {
-            typeName = "external-link";
-        }
-        var span = document.createElement("span");
-        span.classList.add("fa", "fa-" + typeName);
-        span.setAttribute("aria-hidden", "true");
-        return span;
-    }
-    /**
      * Creates an document fragment containing table rows of data from the feature set.
      * @param featureSet - A feature set.
      * @returns A document fragment to be inserted into the table body.
@@ -195,7 +106,7 @@
                         var value = feature.attributes[field.name];
                         if (value === null) {
                             cell.classList.add("null");
-                            cell.title = "null";
+                            cell.textContent = "null";
                         } else if (dateRe.test(field.type) && typeof value === "number") {
                             // ArcGIS services return dates as integers.
                             // Add a <time> element with the date.
@@ -218,9 +129,9 @@
                             if (gMapsMatch) {
                                 a.textContent = gMapsMatch[1].replace(/\+/g, " ");
                             } else {
-                                var icon = getFontAwesomeFileIcon(linkUrl);
-                                a.title = "link";
-                                a.appendChild(icon);
+                                var linkMatch = linkUrl.match(/\/([^/]+)$/);
+                                var textElement = document.createTextNode(linkMatch ? linkMatch[1] : "link");
+                                a.appendChild(textElement);
                             }
                             cell.appendChild(a);
                         } else if (phoneFieldRe.test(field.name) && typeof value === "string") {

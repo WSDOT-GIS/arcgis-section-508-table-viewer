@@ -49,6 +49,9 @@
         worker.addEventListener("message", function (ev) {
             if (ev.data.type === "serviceInfo" && ev.data.serviceInfo) {
                 var table = (0, _tableUtils.createTable)(ev.data.serviceInfo, ev.data.fields);
+                var h1 = document.createElement("h1");
+                h1.textContent = ev.data.serviceInfo.name;
+                document.body.appendChild(h1);
                 document.body.appendChild(table);
             } else if (ev.data.type === "featureSet") {
                 // Add rows to table.

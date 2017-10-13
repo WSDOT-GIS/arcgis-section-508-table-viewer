@@ -5,21 +5,21 @@ import { createRowsFromData, createTable } from "./tableUtils";
  * Creates a form that the user can enter a feature layer URL into.
  */
 function createForm() {
-    let form = document.createElement("form");
-    let urlBox = document.createElement("input");
+    const form = document.createElement("form");
+    const urlBox = document.createElement("input");
     urlBox.type = "url";
     urlBox.id = "urlBox";
     urlBox.name = "url";
     urlBox.pattern = /.+\/\d+\/?$/.source;
     urlBox.placeholder = "https://data.example.com/arcgis/rest/folder/ServiceName/0";
 
-    let label = document.createElement("label");
+    const label = document.createElement("label");
     label.htmlFor = urlBox.id;
     label.textContent = "Enter a URL to an ArcGIS Server Map or Feature Service layer";
     form.appendChild(label);
     form.appendChild(urlBox);
 
-    let button = document.createElement("button");
+    const button = document.createElement("button");
     button.type = "submit";
     button.textContent = "Submit";
 
@@ -31,26 +31,26 @@ function createForm() {
 // Get the specified URL from the search string.
 // If the url is provided in the search, load the data from the specified service.
 // Otherwise display a form the user can use to specify a service URL.
-let match = !!location.search && location.search.match(/url=([^&]+)/);
+const match = !!location.search && location.search.match(/url=([^&]+)/);
 if (match) {
-    let url = decodeURIComponent(match[1]);
-    let progress = document.createElement("progress");
+    const url = decodeURIComponent(match[1]);
+    const progress = document.createElement("progress");
     progress.textContent = "Loading table data...";
     document.body.appendChild(progress);
 
     // Start worker to load data.
-    let worker = new Worker("script/worker/arcgisWorker.js");
+    const worker = new Worker("script/arcgisWorker.js");
     worker.addEventListener("message", (ev) => {
         if (ev.data.type === "serviceInfo" && ev.data.serviceInfo) {
-            let table = createTable(ev.data.serviceInfo, ev.data.fields);
-            let h1 = document.createElement("h1");
+            const table = createTable(ev.data.serviceInfo, ev.data.fields);
+            const h1 = document.createElement("h1");
             h1.textContent = (ev.data.serviceInfo as ILayer).name;
             document.body.appendChild(h1);
             document.body.appendChild(table);
         } else if (ev.data.type === "featureSet") {
             // Add rows to table.
-            let frag = createRowsFromData(ev.data.featureSet);
-            let tbody = document.querySelector("tbody");
+            const frag = createRowsFromData(ev.data.featureSet);
+            const tbody = document.querySelector("tbody");
             if (tbody) {
                 tbody.appendChild(frag);
             } else {
@@ -71,6 +71,6 @@ if (match) {
     });
     worker.postMessage(url);
 } else {
-    let form = createForm();
+    const form = createForm();
     document.body.appendChild(form);
 }

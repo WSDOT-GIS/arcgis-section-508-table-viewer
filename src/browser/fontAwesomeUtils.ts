@@ -14,7 +14,7 @@ export function getFontAwesomeFileIcon(url: string) {
     const textRe = /\.((te?xt))$/i;
     const otherRe = /[^.]+\.\w+$/i;
 
-    let [
+    const [
         pdf,
         excel,
         archive,
@@ -53,9 +53,9 @@ export function getFontAwesomeFileIcon(url: string) {
         typeName = "external-link";
     }
 
-    let span = document.createElement("span");
+    const span = document.createElement("span");
     span.classList.add("fa", `fa-${typeName}`);
     span.setAttribute("aria-hidden", "true");
     return span;
 }
-
+

@@ -1,6 +1,7 @@
 {
     "$schema": "http://json.schemastore.org/tsconfig",
     "compilerOptions": {
+        "outDir": "../script",
         "module": "es2015",
         "target": "es2017",
         "noImplicitAny": true,

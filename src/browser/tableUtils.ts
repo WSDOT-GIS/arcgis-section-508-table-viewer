@@ -29,6 +29,7 @@ export function createTable(layer: ILayer, fields?: IField[]) {
     for (const field of (fields || layer.fields)) {
         const th = document.createElement("th");
         th.textContent = field.alias || field.name;
+        th.scope = "col";
         row.appendChild(th);
     }
     thead.appendChild(row);

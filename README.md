@@ -17,27 +17,26 @@ For Developers
 ### Technology used ###
 
 * [ArcGIS Server REST API]
-* [Babel]
 * [NPM]
-* [PowerShell]
 * [TypeScript]
+* [Webpack]
 
 ### Build ###
 
 #### Prerequisites ####
 
 * [NodeJS]
-* [PowerShell]
+* [Yarn]
 
 The following command will install all dependencies and build the website.
 
 ```console
-npm install
+yarn
 ```
 
-[ArcGIS Server REST API]:https://developers.arcgis.com/documentation/core-concepts/rest-api/#arcgis-server-rest-api
+[ArcGIS Server REST API]:https://developers.arcgis.com/rest/services-reference/
 [NodeJS]:https://nodejs.org/en/
 [NPM]:https://www.npmjs.com/
 [TypeScript]:https://www.typescriptlang.org/
-[Babel]:https://babeljs.io/
-[PowerShell]:https://docs.microsoft.com/powershell/
+[Webpack]:https://webpack.js.org
+[Yarn]:https://yarnpkg.com/

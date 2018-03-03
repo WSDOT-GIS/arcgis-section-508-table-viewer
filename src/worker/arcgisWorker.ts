@@ -16,9 +16,9 @@ export interface IError {
  * @param serviceUrl URL to the map service layer.
  */
 async function getServiceInfo(serviceUrl: string) {
-    let response = await fetch(`${serviceUrl}?f=json`);
-    let json = await response.json() as ILayer | IError;
-    let errorJson = json as IError;
+    const response = await fetch(`${serviceUrl}?f=json`);
+    const json = await response.json() as ILayer | IError;
+    const errorJson = json as IError;
     if (errorJson.error) {
         throw errorJson.error;
     }
@@ -32,15 +32,15 @@ async function getServiceInfo(serviceUrl: string) {
  * If omitted, all fields ("*") will be returned.
  */
 async function getData(layerUrl: string, fieldNames?: string[]) {
-    let sp: any = {
+    const sp: any = {
         f: "json",
         outFields: fieldNames ? fieldNames.join(",") : "*",
         returnGeometry: false,
         where: "1=1"
     };
 
-    let searchParts = new Array<string>();
-    for (let key in sp) {
+    const searchParts = new Array<string>();
+    for (const key in sp) {
         if (!(key in sp)) {
             continue;
         }
@@ -48,18 +48,18 @@ async function getData(layerUrl: string, fieldNames?: string[]) {
     }
 
     // Query the service to get all data (or the max amount of records allowed by the server).
-    let url = `${layerUrl}/query?${searchParts.join("&")}`;
-    let response = await fetch(url);
+    const url = `${layerUrl}/query?${searchParts.join("&")}`;
+    const response = await fetch(url);
     // Parse the JSON text response.
-    let json = await response.json() as IFeatureSet | IError;
+    const json = await response.json() as IFeatureSet | IError;
     // Sometimes "successful" HTTP requests from ArcGIS server are still errors.
     // Throw an exception if an "error" property is present in the returned JSON.
-    let err = json as IError;
+    const err = json as IError;
     if (err.error) {
         throw err.error;
     }
     // Return the FeatureSet if no errors were encountered.
-    let featureSet = json as IFeatureSet;
+    const featureSet = json as IFeatureSet;
     return featureSet;
 }
 
@@ -67,15 +67,15 @@ async function getData(layerUrl: string, fieldNames?: string[]) {
 addEventListener("message", async (msgEvt) => {
     // The only messages set from page to worker will be the layer URL string.
     if (msgEvt.data && typeof msgEvt.data === "string") {
-        let url = msgEvt.data;
+        const url = msgEvt.data;
         // Get info about the map / feature service layer.
-        let svcPromise = getServiceInfo(url);
-        let serviceInfo = await svcPromise;
+        const svcPromise = getServiceInfo(url);
+        const serviceInfo = await svcPromise;
         // Create a list of fields that excludes OID and geometry.
-        let fields = serviceInfo.fields.filter(
+        const fields = serviceInfo.fields.filter(
             (field) => field.type !== "esriFieldTypeOID" && field.type !== "esriFieldTypeGeometry");
         // Create an array of field names (from the filtered list).
-        let fieldNames = fields.map((field) => field.name);
+        const fieldNames = fields.map((field) => field.name);
         // Send layer info back to the page so it can create table and column headers
         // while awaiting features.
         postMessage({
@@ -85,7 +85,7 @@ addEventListener("message", async (msgEvt) => {
         });
         // Query the service to get features (up to the max amount set by the service).
         // When the query is complete, the features will be sent to the page.
-        let dataPromise = getData(url, fieldNames);
+        const dataPromise = getData(url, fieldNames);
         dataPromise.then((featureSet) => {
             postMessage({
                 type: "featureSet",
@@ -101,7 +101,7 @@ addEventListener("message", async (msgEvt) => {
         // Once all of the HTTP queries to the feature service have
         // been completed, the worker is no longer needed and can be
         // closed.
-        let allPromise = Promise.all([svcPromise, dataPromise]);
+        const allPromise = Promise.all([svcPromise, dataPromise]);
         allPromise.then((results) => {
             postMessage({
                 type: "done",

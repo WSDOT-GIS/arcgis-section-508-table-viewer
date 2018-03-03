@@ -1,5 +1,4 @@
 import { IFeatureSet, IField, ILayer } from "arcgis-rest-api-ts-d";
-import { matchRegExps } from "./reUtils";
 
 /**
  * Determines if a date/time is midnight UTC.

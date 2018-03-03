@@ -1,6 +1,6 @@
 {
   "name": "arcgis-section-508-table-viewer",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "View data from ArcGIS server service in Section 508 compatible table",
   "main": "index.js",
   "scripts": {
@@ -8,6 +8,9 @@
     "build:less": "lessc index.less index.css"
   },
   "author": "WSDOT",
+  "contributors": [
+    "Jeff Jacobson"
+  ],
   "license": "Unlicense",
   "private": true,
   "devDependencies": {
@@ -20,5 +23,6 @@
     "webpack": "^4.0.1",
     "webpack-cli": "^2.0.10"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "repository": "https://github.com/WSDOT-GIS/arcgis-section-508-table-viewer.git"
 }

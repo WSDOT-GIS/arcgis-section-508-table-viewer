@@ -26,12 +26,11 @@ For Developers
 #### Prerequisites ####
 
 * [NodeJS]
-* [Yarn]
 
 The following command will install all dependencies and build the website.
 
 ```console
-yarn
+npm install
 ```
 
 [ArcGIS Server REST API]:https://developers.arcgis.com/rest/services-reference/
